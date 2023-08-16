@@ -15,28 +15,42 @@ struct ContentView: View {
     @State var gym : Gyms = .Milton_Keynes
     @StateObject var controller = FetchCapacity()
     
+  
+    
+    func fetchAllData(){
+        controller.fetchData(completionHandler: {cap in
+            self.capacity = cap ?? "Loading..."
+        })
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+    
     var body: some View {
-        VStack {
-            
-            HStack{
-                Button("Get data for"){
-                    print("FETCHING..")
-                    controller.fetchData()
-                    WidgetCenter.shared.reloadAllTimelines()
+        ZStack {
+           
+            VStack {
+               
+                HStack{
+                    Button("Get data for"){
+                        print("FETCHING..")
+                        fetchAllData()
 
-                }
-                Picker("Choose gym", selection: $gym){
-                    ForEach(Gyms.allCases){option in
-                        Text(String(describing: option))
                     }
-                }.onChange(of: gym, perform: {(value) in
-                    controller.gym = value
-                    controller.fetchData()
-                })
+                    Picker("Choose gym", selection: $gym){
+                        ForEach(Gyms.allCases){option in
+                            Text(String(describing: option))
+                        }
+                    }.onChange(of: gym, perform: {(value) in
+                        controller.gym = value
+                        fetchAllData()
+                    })
+                }
+                Text(capacity)
+                    .padding()
+            }.onAppear(perform: fetchAllData)
+            if controller.isLoading{
+                ProgressView()
             }
-            Text(controller.capacity.value ?? "Loading..")
-                .padding()
-        }.onAppear(perform: controller.fetchData)
+        }
     }
 }
 

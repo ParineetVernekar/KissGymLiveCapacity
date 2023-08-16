@@ -11,10 +11,12 @@ struct Capacity : Codable{
     var value : String?
 }
 
+@MainActor
 class FetchCapacity: ObservableObject{
     @Published var gym : Gyms = .Milton_Keynes
-    @Published var capacity : Capacity = Capacity(value: "Loading..")
-    func fetchData(){
+    @Published var isLoading : Bool = false
+    func fetchData(completionHandler: @escaping (String?)->Void){
+        self.isLoading = true
         guard let url = URL(string: "https://www.kissgyms.com/headcount.php") else {
             return
         }
@@ -27,7 +29,6 @@ class FetchCapacity: ObservableObject{
             
             guard let data = data else{
                 print("DATA NOT RIGHT")
-                print(data)
                 return
             }
             
@@ -45,7 +46,12 @@ class FetchCapacity: ObservableObject{
                 // Print out the headlines
                 for headline in headlines {
                     print(try headline.text())
-                    self.capacity.value = try headline.text()
+                    let cap = try headline.text()
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                        completionHandler(cap)
+                    }
+                    
                 }
             } catch let error {
                 print("Error: \(error.localizedDescription)")

@@ -37,7 +37,7 @@ struct Provider: IntentTimelineProvider {
 
     func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
 
-        DataProvider.getImageFromApi(completion: { response in
+        DataProvider.fetchGymData(completion: { response in
             var entries: [SimpleEntry] = []
             var policy: TimelineReloadPolicy
             var entry: SimpleEntry
@@ -78,7 +78,7 @@ class DataProvider {
         }
     }
     
-     static func getImageFromApi(completion: ((DataResponse) -> Void)?, configuration:ConfigurationIntent) {
+     static func fetchGymData(completion: ((DataResponse) -> Void)?, configuration:ConfigurationIntent) {
           
             let urlString = "https://www.kissgyms.com/headcount.php"
             
@@ -170,11 +170,8 @@ struct GymCapacityWidgetEntryView : View {
             ZStack {
                 Styles.background
                 VStack(alignment: .leading){
-                    HStack {
                         Image(systemName: "dumbbell")
-                        Text("Kiss Gym Live")
-                            .font(.caption)
-                    }
+                       
                         HStack {
                             Text(entry.capacity.value ?? "...")
                                 .font(.largeTitle)
